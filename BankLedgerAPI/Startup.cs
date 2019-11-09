@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using ServiceStack.Configuration;
 using BankLedgerAPI.Services;
 using IUserService = BankLedgerAPI.Services.IUserService;
+using Microsoft.Extensions.Hosting;
 
 namespace BankLedgerAPI
 {
@@ -28,6 +29,7 @@ namespace BankLedgerAPI
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddControllers();
             // TODO figure out what non-deprecated method is for UserInMemoryDatabase
             services.AddDbContext<DataContext>(opt => opt.UseInMemoryDatabase(databaseName: "Users"));
 
@@ -69,23 +71,29 @@ namespace BankLedgerAPI
                 };
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddMvc();
+            services.AddLogging(logging =>
+            {
+                logging.AddConsole();
+                logging.AddDebug();
+            });
+            //MvcOptions.EnableEndPoiuntRouting = false;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-
-            var context = app.ApplicationServices.GetService<DataContext>();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseRouting();
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }
