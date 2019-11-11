@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using BankLedgerAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BankLedgerAPI.Controllers
 {
@@ -17,6 +14,7 @@ namespace BankLedgerAPI.Controllers
     {
         private readonly DataContext _context;
 
+
         //public UsersController()
         //{
         //}
@@ -25,6 +23,7 @@ namespace BankLedgerAPI.Controllers
         {
             _context = context;
         }
+
 
         //public UsersController(List<User> users)
         //{
@@ -85,6 +84,11 @@ namespace BankLedgerAPI.Controllers
                 }
 
             }
+            //else
+            //{
+            //    return BadRequest(users.Count().ToString());
+            //}
+
             return BadRequest("Username already exists.");
         }
     }

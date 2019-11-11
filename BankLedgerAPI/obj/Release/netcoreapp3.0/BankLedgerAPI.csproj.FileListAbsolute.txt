@@ -36,3 +36,4 @@ C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\obj\Release\netcoreapp3.0\Ban
 C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\obj\Release\netcoreapp3.0\BankLedgerAPI.csproj.CopyComplete
 C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\obj\Release\netcoreapp3.0\BankLedgerAPI.dll
 C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\obj\Release\netcoreapp3.0\BankLedgerAPI.pdb
+C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\obj\Release\netcoreapp3.0\BankLedgerAPI.csprojAssemblyReference.cache
