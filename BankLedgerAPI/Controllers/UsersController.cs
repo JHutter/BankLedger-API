@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using BankLedgerAPI.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -15,19 +17,23 @@ namespace BankLedgerAPI.Controllers
     {
         private readonly DataContext _context;
 
+        //public UsersController()
+        //{
+        //}
+
         public UsersController(DataContext context)
         {
             _context = context;
         }
 
-        public UsersController(List<User> users)
-        {
-            _context.Users.AddRange(users);
-            _context.SaveChanges();
-        }
+        //public UsersController(List<User> users)
+        //{
+        //    _context.Users.AddRange(users);
+        //    _context.SaveChanges();
+        //}
 
 
-
+        // TODO change this, obvs don't want to spit out all users with a simple GET
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Get()
@@ -47,6 +53,39 @@ namespace BankLedgerAPI.Controllers
             });
 
             return Ok(response);
+        }
+
+        [HttpPost("register")]
+        public IActionResult Register([FromHeader] string username, [FromHeader] string password, string fname, string lname)
+        {
+            if (String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password) || String.IsNullOrWhiteSpace(fname) || String.IsNullOrWhiteSpace(lname))
+            {
+                return BadRequest("Invalid params for user registration.");
+            }
+
+            var users = _context.Users.Where(u => u.Username == username);
+
+            if (users.Count() == 0)
+            {
+                using (var sha1 = new SHA1CryptoServiceProvider())
+                {
+                    var sha1data = sha1.ComputeHash(Encoding.ASCII.GetBytes(password));
+                    var testUser = new Models.User
+                    {
+                        Username = username,
+                        FName = fname,
+                        LName = lname,
+                        Password = sha1data
+                    };
+
+                    _context.Users.Add(testUser);
+                    _context.SaveChanges();
+
+                    return Ok(String.Format("New user {0} created", username));
+                }
+
+            }
+            return BadRequest("Username already exists.");
         }
     }
 }
