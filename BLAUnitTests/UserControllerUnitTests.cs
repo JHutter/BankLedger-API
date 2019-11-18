@@ -1,13 +1,10 @@
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using ServiceStack.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using Xunit;
 
 namespace BLAUnitTests
@@ -112,8 +109,17 @@ namespace BLAUnitTests
         }
 
         #region helpers
+        /// <summary>
+        /// Returns HttpContent to be posted
+        /// </summary>
+        /// <param name="username">username added to header</param>
+        /// <param name="password">string password, will be hashed before being added to header</param>
+        /// <param name="fName">first name, sent in body in json obj</param>
+        /// <param name="lName">last name, sent in body in json obj</param>
+        /// <returns>StringContent with the params added to header and body</returns>
         private StringContent GetHttpContentWithNamesAndPass(string username, string password, string fName, string lName)
         {
+            var hashedPassword = BankLedgerAPI.Utilities.HashUtil.HashPassword(password);
             var values = new Dictionary<string, string>
             {
               {"lname", lName}, {"fname", fName}
@@ -122,12 +128,20 @@ namespace BLAUnitTests
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             content.Headers.Add("username", username);
-            content.Headers.Add("password", password);
+            content.Headers.Add("password", Encoding.ASCII.GetString(hashedPassword));
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
             return content;
         }
 
+        /// <summary>
+        /// Sets up and sends request
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="fName"></param>
+        /// <param name="lName"></param>
+        /// <returns>HttpResponseMessage from post to api endpoint</returns>
         private async Task<HttpResponseMessage> SetUpRequest(string username, string password, string fName, string lName)
         {
             var content = GetHttpContentWithNamesAndPass(username, password, fName, lName);

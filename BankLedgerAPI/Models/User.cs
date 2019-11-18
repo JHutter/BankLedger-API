@@ -16,8 +16,9 @@ namespace BankLedgerAPI.Models
         public string LName { get; set; }
         public string Username { get; set; }
         public byte[] Password { get; set; }
+        public string Salt { get; set; }
 
-        
+
 
 
     }
