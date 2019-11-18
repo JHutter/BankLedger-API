@@ -13,6 +13,7 @@ using ServiceStack.Configuration;
 using BankLedgerAPI.Services;
 using IUserService = BankLedgerAPI.Services.IUserService;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Serialization;
 
 namespace BankLedgerAPI
 {
@@ -72,12 +73,17 @@ namespace BankLedgerAPI
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-            services.AddMvc();
+            //                .AddNewtonsoftJson();
+
             services.AddLogging(logging =>
             {
                 logging.AddConsole();
                 logging.AddDebug();
             });
+
+            // source https://medium.com/cloudnimble/switching-to-system-text-json-in-net-core-3-0-not-so-fast-4c577a21298b
+            services.AddMvc().AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver())
+                    .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNameCaseInsensitive = true);
             //MvcOptions.EnableEndPoiuntRouting = false;
         }
 

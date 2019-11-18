@@ -236,3 +236,6 @@ C:\Users\Jon\source\repos\BankLedger\BLAUnitTests\obj\Debug\netcoreapp3.0\BLAUni
 C:\Users\Jon\source\repos\BankLedger\BLAUnitTests\obj\Debug\netcoreapp3.0\BLAUnitTests.csproj.CopyComplete
 C:\Users\Jon\source\repos\BankLedger\BLAUnitTests\obj\Debug\netcoreapp3.0\BLAUnitTests.dll
 C:\Users\Jon\source\repos\BankLedger\BLAUnitTests\obj\Debug\netcoreapp3.0\BLAUnitTests.pdb
+C:\Users\Jon\source\repos\BankLedger\BLAUnitTests\bin\Debug\netcoreapp3.0\Microsoft.AspNetCore.JsonPatch.dll
+C:\Users\Jon\source\repos\BankLedger\BLAUnitTests\bin\Debug\netcoreapp3.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+C:\Users\Jon\source\repos\BankLedger\BLAUnitTests\bin\Debug\netcoreapp3.0\Newtonsoft.Json.Bson.dll

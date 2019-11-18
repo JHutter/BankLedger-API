@@ -387,3 +387,6 @@ C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\obj\Release\netcoreapp3.0\win
 C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\obj\Release\netcoreapp3.0\win-x64\BankLedgerAPI.dll
 C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\obj\Release\netcoreapp3.0\win-x64\BankLedgerAPI.pdb
 C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\obj\Release\netcoreapp3.0\win-x64\BankLedgerAPI.csprojAssemblyReference.cache
+C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\bin\Release\netcoreapp3.0\win-x64\Microsoft.AspNetCore.JsonPatch.dll
+C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\bin\Release\netcoreapp3.0\win-x64\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+C:\Users\Jon\source\repos\BankLedger\BankLedgerAPI\bin\Release\netcoreapp3.0\win-x64\Newtonsoft.Json.Bson.dll
