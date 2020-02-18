@@ -4,8 +4,8 @@
       "commandName": "Project",
       "workingDirectory": "C:\\inetpub\\wwwroot\\BLA",
       "environmentVariables": {
-        "IdentityBaseUrl": "\"https://localhost:5001\"",
-        "ApiBaseUrl": "\"https://localhost:5001/api\""
+        "IdentityBaseUrl": "https://localhost:44325",
+        "ApiBaseUrl": "https://localhost:44325/api"
       }
     }
   }

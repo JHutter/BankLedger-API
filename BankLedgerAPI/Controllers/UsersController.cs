@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -8,6 +7,7 @@ using BankLedgerAPI.Models;
 using BankLedgerAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 
 namespace BankLedgerAPI.Controllers
@@ -22,7 +22,7 @@ namespace BankLedgerAPI.Controllers
         public UsersController(DataContext context)
         {
             _context = context;
-            emptyStringHash = Encoding.ASCII.GetString(HashUtil.HashPassword(string.Empty));
+            emptyStringHash = Encoding.ASCII.GetString(HashUtils.HashPassword(string.Empty));
         }
 
         // TODO change this, obvs don't want to spit out all users with a simple GET
@@ -30,18 +30,7 @@ namespace BankLedgerAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var users = _context.Users;
-
-
-            var response = users.Select(u => new
-            {
-                userId = u.Id,
-                username = u.Username,
-                firstName = u.FName,
-                lastName = u.LName,
-            });
-
-            return Ok(response);
+            return Ok("ok");
         }
 
         /// <summary>
@@ -51,12 +40,14 @@ namespace BankLedgerAPI.Controllers
         /// <param name="password">desired password</param>
         /// <param name="userData">json object with fname and lname</param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpPost("register")]
         public IActionResult Register([FromHeader] string username, [FromHeader] string password, [FromBody] JObject userData)
         {
             var user = userData.ToObject<User>();
             Regex regex = new Regex(@"^[0-9a-zA-Z]{3,32}$");
             //string emptyStringHash = Encoding.ASCII.GetString(HashUtil.HashPassword(string.Empty));
+            // TODO add checks to password lengths and complexity
 
             if (String.IsNullOrWhiteSpace(username) || password.Equals(emptyStringHash) || String.IsNullOrWhiteSpace(user.FName) || String.IsNullOrWhiteSpace(user.LName))
             {
@@ -72,11 +63,8 @@ namespace BankLedgerAPI.Controllers
 
             if (users.Count() == 0)
             {
-                Tuple<byte[], string> hashAndSalt = HashUtil.HashWithNewSalt(password);
+                Tuple<byte[], string> hashAndSalt = HashUtils.HashWithNewSalt(password);
                     
-                //    using (var sha1 = new SHA1CryptoServiceProvider())
-               // {
-                 //   var sha1data = sha1.ComputeHash(Encoding.ASCII.GetBytes(password));
                 var testUser = new Models.User
                 {
                     Username = username,
@@ -90,9 +78,10 @@ namespace BankLedgerAPI.Controllers
                 _context.SaveChanges();
 
                 return Ok(String.Format("New user {0} created", username));
-               // }
+
             }
             return BadRequest("Username already exists.");
         }
+
     }
 }

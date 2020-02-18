@@ -15,11 +15,21 @@ namespace BankLedgerAPI
     {
         public static void Main(string[] args)
         {
-            //CreateWebHostBuilder(args).Build().Run();
+            // base url set in env vars for portability, also test suite references same env var
+            string baseUrl = System.Environment.GetEnvironmentVariable("BLA_BASE_URL");
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                baseUrl = "https://localhost:5001";
+            }
+
+            
 
             // source https://exceptionnotfound.net/ef-core-inmemory-asp-net-core-store-database/
             //1. Get the IWebHost which will host this application.
-            var host = CreateWebHostBuilder(args).Build();
+            var host = CreateWebHostBuilder(args)
+                .UseKestrel()
+                .UseUrls(baseUrl)
+                .Build();
 
             //2. Find the service layer within our scope.
             using (var scope = host.Services.CreateScope())

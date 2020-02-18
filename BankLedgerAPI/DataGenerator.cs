@@ -20,27 +20,27 @@ namespace BankLedgerAPI
 
         public static void Initialize(IServiceProvider serviceProvider)
         {
-            using (var context = new DataContext(
-                serviceProvider.GetRequiredService<DbContextOptions<DataContext>>()))
-            {
+            //using (var context = new DataContext(
+            //    serviceProvider.GetRequiredService<DbContextOptions<DataContext>>()))
+            //{
 
-                if (context.Users.Any())
-                {
-                    return;
-                }
+            //    if (context.Users.Any())
+            //    {
+            //        return;
+            //    }
 
-                using (var sha1 = new SHA1CryptoServiceProvider())
-                {
-                    var sha1data = sha1.ComputeHash(Encoding.ASCII.GetBytes("testpass"));
-                    context.Users.Add(new User {
-                        FName = "Leia",
-                        LName = "Organa",
-                        Username = "leia2",
-                        Password = sha1data});
-                }
+            //    using (var sha1 = new SHA1CryptoServiceProvider())
+            //    {
+            //        var sha1data = sha1.ComputeHash(Encoding.ASCII.GetBytes("testpass"));
+            //        context.Users.Add(new User {
+            //            FName = "Leia",
+            //            LName = "Organa",
+            //            Username = "leia2",
+            //            Password = sha1data});
+            //    }
 
-                context.SaveChanges();
-            }
+            //    context.SaveChanges();
+            //}
         }
     }
 }

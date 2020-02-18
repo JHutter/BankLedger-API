@@ -1,0 +1,11 @@
+/build/
+*.suo
+*.user
+bin/
+obj/
+Debug/
+Release/
+*.tlog
+*.log
+*/bin/*
+*/obj/*

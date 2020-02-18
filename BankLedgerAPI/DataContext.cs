@@ -19,12 +19,14 @@ namespace BankLedgerAPI
 
         public DbSet<User> Users { get; set; }
 
+        public List<string> JWTBlacklist { get; set; }
+
         //public DbSet<Account> Accounts { get; set; }
 
         //public DbSet<Transaction> Transactions { get; set; }
 
 
-
+        // TODO: this is kludgy, take it out
         public bool UsernameExists(string username)
         {
             foreach (User user in Users)
@@ -33,6 +35,14 @@ namespace BankLedgerAPI
             }
             return false;
         }
+
+        // TODO: this is a stub
+        public bool AuthTokenInBlacklist(string attemptToken)
+        {
+            return true;
+        }
     }
+
+
 
 }

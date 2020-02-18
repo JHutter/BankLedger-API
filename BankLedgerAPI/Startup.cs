@@ -14,6 +14,7 @@ using BankLedgerAPI.Services;
 using IUserService = BankLedgerAPI.Services.IUserService;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
+using System;
 
 namespace BankLedgerAPI
 {
@@ -29,7 +30,6 @@ namespace BankLedgerAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
             // TODO figure out what non-deprecated method is for UserInMemoryDatabase
             services.AddDbContext<DataContext>(opt => opt.UseInMemoryDatabase(databaseName: "Users"));
@@ -39,7 +39,7 @@ namespace BankLedgerAPI
             services.Configure<AppSettings>(appSettingsSection);
             services.AddScoped<IUserService, UserService>(); // register user service
             //var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes("foobarfoobarfoobarfoobarfoobar"); // TODO fix this
+            var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("BLA_JWT_SECRET"));
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -90,6 +90,12 @@ namespace BankLedgerAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            string appUrl = Environment.GetEnvironmentVariable("BLA_BASE_URL");
+
+            if (String.IsNullOrWhiteSpace(appUrl))
+            {
+                appUrl = "https://localhost:5001/";
+            }
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
