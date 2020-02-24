@@ -35,6 +35,7 @@ namespace BankLedgerAPI
             services.AddDbContext<DataContext>(opt => opt.UseInMemoryDatabase(databaseName: "Users"));
 
             // configure jwt authentication
+            // TODO onTokenValidated, add check against token blacklist for logged out users+tokens
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
             services.AddScoped<IUserService, UserService>(); // register user service

@@ -50,7 +50,7 @@ namespace BankLedgerAPI.Controllers
                 if (hashedFromUserPass.Equals(Convert.ToBase64String(user.Password)))
                 {
                     HttpContext.Response.Headers.Append("Authorization", TokenUtils.GenerateToken(user));
-                    return Ok();
+                    return Ok("login successful");
                 }
 
             }
@@ -58,30 +58,38 @@ namespace BankLedgerAPI.Controllers
             return BadRequest("Unable to authenticate the request");
         }
 
+        [HttpPost("logout")]
+        //[Authorize]
+        public ActionResult Logout([FromHeader] string Authorization)
+        {
+            // add token to blacklist
+            if (!string.IsNullOrWhiteSpace(Authorization) && Authorization.Contains("Bearer "))
+            {
+                string tokenText = Authorization.Split(" ")[1];
 
+                // no need to add to blacklist if it's not valid
+                if (TokenUtils.ValidateToken(tokenText, out SecurityToken securityToken))
+                {
+                    Token tempToken = new Token()
+                    {
+                        Expiration = securityToken.ValidTo,
+                        TokenString = tokenText,
+                        JWTToken = securityToken
+                    };
 
-        //// TODO
-        //[HttpPost("logout")]
-        ////[Authorize]
-        //public ActionResult Logout([FromHeader] string jwt_token)
-        //{
-        //    // add token to blacklist
-        //    //string tokenString =
-        //    if (!string.IsNullOrWhiteSpace(jwt_token))
-        //    {
-        //        _context.JWTBlacklist.Add(jwt_token);
-        //        _context.SaveChanges();
+                    _context.JWTBlacklist.Add(tempToken);
+                    _context.SaveChanges();
+                }
 
-        //        //var response = new TokenResponse("0", string.Empty);
-        //        var response = new TokenResponse();
-        //        return Ok(response);
-        //    }
-        //    else
-        //    {
-        //        return BadRequest();
-        //    }
-            
-        //}
+                HttpContext.Response.Headers.Append("Authorization", " ");
+                return Ok("logout successful");
+            }
+            else
+            {
+                return BadRequest("missing session information");
+            }
+
+        }
 
     }
 }

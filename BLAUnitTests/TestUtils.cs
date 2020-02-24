@@ -40,21 +40,11 @@ namespace BLAUnitTests
         /// </summary>
         /// <param name="username">username added to header</param>
         /// <param name="password">string password, will be hashed before being added to header</param>
-
         /// <returns>StringContent with the params added to header and body</returns>
-        public static StringContent GetHttpContentWithUserAndPass(string username, string password)
+        public static StringContent GetHttpContentWithUserAndPass(string username, string password, string httpContent)
         {
-    //        httpClient.DefaultRequestHeaders.Authorization =
-    //new AuthenticationHeaderValue("Bearer", "Your Oauth token");
-
             byte[] hashedPassword = BankLedgerAPI.Utilities.HashUtils.HashPassword(password);
-            var values = new Dictionary<string, string>
-            {
-                {"lname", "something"}
-            };
-            var json = JsonConvert.SerializeObject(values);
-            //var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var content = new StringContent("");
+            var content = new StringContent(httpContent);
 
             content.Headers.Add("username", username);
             content.Headers.Add("password", Encoding.ASCII.GetString(hashedPassword)); // Convert.ToBase64String(System.Net.WebUtility.UrlEncodeToBytes(hashedPassword, 0, hashedPassword.Length)));
@@ -89,14 +79,45 @@ namespace BLAUnitTests
         /// <param name="fName"></param>
         /// <param name="lName"></param>
         /// <returns>HttpResponseMessage from post to api endpoint</returns>
-        public static async Task<HttpResponseMessage> SetUpLoginRequest(string endpoint, string username, string password)
+        public static async Task<HttpResponseMessage> SetUpRequestWithAuth(string endpoint, string token, string httpContent)
         {
-            var content = GetHttpContentWithUserAndPass(username, password);
             var apiClient = new HttpClient();
-            //apiClient.DefaultRequestHeaders.Add("username", username);
-            //apiClient.DefaultRequestHeaders.Add("password", BankLedgerAPI.Utilities.HashUtil.HashPasswordToString(password));
-            //apiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+          
+            apiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var response = await apiClient.PostAsync(endpoint, new StringContent(httpContent));
+            return response;
+        }
+
+        // <summary>
+        /// Sets up and sends request
+        /// </summary>
+        /// <param name="endpoint"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="fName"></param>
+        /// <param name="lName"></param>
+        /// <returns>HttpResponseMessage from post to api endpoint</returns>
+        public static async Task<HttpResponseMessage> SetUpPostRequestWithUsernameAndPassword(string endpoint, string username, string password)
+        {
+            var content = GetHttpContentWithUserAndPass(username, password, "");
+            var apiClient = new HttpClient();
             var response = await apiClient.PostAsync(endpoint, content);
+            return response;
+        }
+
+        // <summary>
+        /// Sets up and sends request
+        /// </summary>
+        /// <param name="endpoint"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="fName"></param>
+        /// <param name="lName"></param>
+        /// <returns>HttpResponseMessage from post to api endpoint</returns>
+        public static async Task<HttpResponseMessage> SetUpSimplePostRequest(string endpoint, string httpContent)
+        {
+            var apiClient = new HttpClient();
+            var response = await apiClient.PostAsync(endpoint, new StringContent(httpContent));
             return response;
         }
 

@@ -19,7 +19,7 @@ namespace BankLedgerAPI
 
         public DbSet<User> Users { get; set; }
 
-        public List<string> JWTBlacklist { get; set; }
+        public DbSet<Token> JWTBlacklist { get; set; }
 
         //public DbSet<Account> Accounts { get; set; }
 

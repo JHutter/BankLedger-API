@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -39,8 +40,9 @@ namespace BLAUnitTests
             var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
             Assert.Equal(System.Net.HttpStatusCode.OK, apiResponse.StatusCode);
 
-            var loginResponse = await TestUtils.SetUpLoginRequest($"{ApiBaseUrl}/session/login", username, password);
+            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/login", username, password);
             var msg = await loginResponse.Content.ReadAsStringAsync();
+            Assert.Equal(System.Net.HttpStatusCode.OK, loginResponse.StatusCode);
             //Assert.DoesNotContain("Bad Request", msg);
         }
 
@@ -59,33 +61,70 @@ namespace BLAUnitTests
             var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, firstPassword, firstName, lastName);
             Assert.Equal(System.Net.HttpStatusCode.OK, apiResponse.StatusCode);
 
-            var loginResponse = await TestUtils.SetUpLoginRequest($"{ApiBaseUrl}/session/login", username, secondPassword);
+            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/login", username, secondPassword);
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, loginResponse.StatusCode);
         }
 
-        // TODO
-        //[Fact]
-        //public async Task Logout_Simple()
-        //{
-        //    string firstName = "Raul";
-        //    string lastName = "Chamgerlain";
-        //    string username = "chamgerlain" + TestUtils.GenerateRandomString(16, 49, 57);
-        //    string password = "1234567";
+        [Fact]
+        public async Task Logout_ValidTokenOkRequest()
+        {
+            string firstName = "Raul";
+            string lastName = "Chamgerlain";
+            string username = "chamgerlain" + TestUtils.GenerateRandomString(16, 49, 57);
+            string password = "1234567";
+            
+            var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
+            Assert.Equal(System.Net.HttpStatusCode.OK, apiResponse.StatusCode);
 
-        //    var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
-        //    Assert.Equal(System.Net.HttpStatusCode.OK, apiResponse.StatusCode);
+            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/login", username, password);
+            string authHeader = loginResponse.Headers.GetValues("Authorization").FirstOrDefault();
+            Assert.Equal(System.Net.HttpStatusCode.OK, loginResponse.StatusCode);
 
-        //    var loginResponse = await TestUtils.SetUpLoginRequest($"{ApiBaseUrl}/session/login", username, password);
-        //    var msg = await loginResponse.Content.ReadAsStringAsync();
-        //    Assert.DoesNotContain("Bad Request", msg);
+            var logoutResponse = await TestUtils.SetUpRequestWithAuth($"{ApiBaseUrl}/session/logout", authHeader, "");
+            var logoutAuthToken = logoutResponse.Headers.GetValues("Authorization").FirstOrDefault();
+            Assert.Equal(System.Net.HttpStatusCode.OK, logoutResponse.StatusCode);
+            Assert.Empty(logoutAuthToken);
+        }
 
-        //    var logoutResponse = await TestUtils.SetUpLoginRequest($"{ApiBaseUrl}/session/logout", username, password);
-        //    var logoutmsg = await logoutResponse.Content.ReadAsStringAsync();
-        //    Assert.Equal(System.Net.HttpStatusCode.OK, logoutResponse.StatusCode);
+        [Fact]
+        public async Task Logout_InvalidTokenOkRequest()
+        {
+            string firstName = "Raul";
+            string lastName = "Chamgerlain";
+            string username = "chamgerlain" + TestUtils.GenerateRandomString(16, 49, 57);
+            string password = "1234567";
 
-        //}
+            var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
+            Assert.Equal(System.Net.HttpStatusCode.OK, apiResponse.StatusCode);
 
+            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/login", username, password);
+            string authHeader = loginResponse.Headers.GetValues("Authorization").FirstOrDefault();
+            Assert.Equal(System.Net.HttpStatusCode.OK, loginResponse.StatusCode);
 
+            var logoutResponse = await TestUtils.SetUpRequestWithAuth($"{ApiBaseUrl}/session/logout", authHeader+"modifiedtokenstringhere", "");
+            var logoutAuthToken = logoutResponse.Headers.GetValues("Authorization").FirstOrDefault();
+            Assert.Equal(System.Net.HttpStatusCode.OK, logoutResponse.StatusCode);
+            Assert.Empty(logoutAuthToken);
+        }
+
+        [Fact]
+        public async Task Logout_MissingTokenBadRequest()
+        {
+            string firstName = "Raul";
+            string lastName = "Chamgerlain";
+            string username = "chamgerlain" + TestUtils.GenerateRandomString(16, 49, 57);
+            string password = "1234567";
+
+            var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
+            Assert.Equal(System.Net.HttpStatusCode.OK, apiResponse.StatusCode);
+
+            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/login", username, password);
+            string authHeader = loginResponse.Headers.GetValues("Authorization").FirstOrDefault();
+            Assert.Equal(System.Net.HttpStatusCode.OK, loginResponse.StatusCode);
+
+            var logoutResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/logout", username, password);
+            Assert.Equal(System.Net.HttpStatusCode.BadRequest, logoutResponse.StatusCode);
+        }
 
     }
 }
