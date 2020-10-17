@@ -13,6 +13,8 @@ namespace BLAUnitTests
     {
         public string IdentityBaseUrl { get; private set; }
         public string ApiBaseUrl { get; private set; }
+        public string EndpointRegister { get; private set; }
+
 
         public UnitTestRegistration()
         {
@@ -26,6 +28,9 @@ namespace BLAUnitTests
             {
                 ApiBaseUrl = localBaseUrl + "/api";
             }
+
+            EndpointRegister = $"{ApiBaseUrl}/users/register";
+
         }
 
         [Theory]
@@ -36,7 +41,7 @@ namespace BLAUnitTests
         [InlineData("", "asdf", "sdfasd", "dsafsdf")]
         public async Task Register_EmptyParams_ReturnFailStatus(string username, string password, string firstName, string lastName)
         {
-            var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
+            var apiResponse = await TestUtils.SetUpRegistrationRequest(EndpointRegister, username, password, firstName, lastName);
             var msg = await apiResponse.Content.ReadAsStringAsync();
 
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, apiResponse.StatusCode);
@@ -60,7 +65,7 @@ namespace BLAUnitTests
         [InlineData("usernamesaresupermainstream2", "whateverpassword", "Britta", "Perry")]
         [InlineData("wingerisnumber2", "whateverpassword", "Jeff", "Winger")]
         [InlineData("secondaccountWinger2", "whateverpassword", "Jeff", "Winger")]
-        public async Task Register_NotUniqueUsername_ReturnsOK(string username, string password, string firstName, string lastName)
+        public async Task Register_NotUniqueUsername_ReturnsBadRequest(string username, string password, string firstName, string lastName)
         {
             var apiResponseFirst = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
             var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
@@ -85,8 +90,8 @@ namespace BLAUnitTests
 
         [Theory]
         [InlineData("coolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcoolcool", "inspectorspacetimeiscool", "Abed", "Nadir")]
-        [InlineData("ab", "inspectorspacetimeiscool", "Abed", "Nadir")]
-        [InlineData("a", "inspectorspacetimeiscool", "Abed", "Nadir")]
+        [InlineData("ab", "inspectorspacetime", "Abed", "Nadir")]
+        [InlineData("a", "inspectorspacetime", "Abed", "Nadir")]
         public async Task Register_ShortOrLongUsername_ReturnsBadRequest(string username, string password, string firstName, string lastName)
         {
             var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);

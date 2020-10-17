@@ -7,7 +7,8 @@ namespace BankLedgerAPI.Utilities
     public static class HashUtils
     {
         private static SHA256CryptoServiceProvider cryptoProvider;
-        
+        public static readonly string EmptyStringHash = Encoding.ASCII.GetString(HashUtils.HashPassword(string.Empty));
+
         /// <summary>
         /// hashes the supplied string (no salt)
         /// </summary>

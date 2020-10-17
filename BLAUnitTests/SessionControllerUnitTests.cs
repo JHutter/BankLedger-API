@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using BankLedgerAPI.Utilities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,9 @@ namespace BLAUnitTests
     {
         public string IdentityBaseUrl { get; private set; }
         public string ApiBaseUrl { get; private set; }
+        public string EndpointRegister { get; private set; }
+        public string EndpointLogin { get; private set; }
+        public string EndpointLogout { get; private set; }
 
         public SessionControllerUnitTests()
         {
@@ -27,6 +31,10 @@ namespace BLAUnitTests
             {
                 ApiBaseUrl = localBaseUrl + "/api";
             }
+
+            EndpointRegister = $"{ApiBaseUrl}/users/register";
+            EndpointLogin = $"{ApiBaseUrl}/session/login";
+            EndpointLogout = $"{ApiBaseUrl}/session/logout";
         }
 
         [Fact]
@@ -34,13 +42,13 @@ namespace BLAUnitTests
         {
             string firstName = "Sleve";
             string lastName = "McDichael";
-            string username = "mcdichael" + TestUtils.GenerateRandomString(16, 49, 57);
+            string username = "mcdichael" + TestUtils.GenerateRandomNumericPostfix();
             string password = "1234";
 
-            var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
+            var apiResponse = await TestUtils.SetUpRegistrationRequest(EndpointRegister, username, password, firstName, lastName);
             Assert.Equal(System.Net.HttpStatusCode.OK, apiResponse.StatusCode);
 
-            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/login", username, password);
+            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword(EndpointLogin, username, password);
             var msg = await loginResponse.Content.ReadAsStringAsync();
             Assert.Equal(System.Net.HttpStatusCode.OK, loginResponse.StatusCode);
             //Assert.DoesNotContain("Bad Request", msg);
@@ -49,19 +57,19 @@ namespace BLAUnitTests
         [Theory]
         [InlineData("onsonsweemey", "secretpassword", "chimichanga")]
         [InlineData("darrylarchideld", "1234", "")]
-        [InlineData("anatolismorin", "1234", "12345")]
+        [InlineData("anatolismorin123", "1234", "12345")]
         [InlineData("glenallenmixon", "1234", " 1234")]
         [InlineData("glenallenmixon2", "1234", "1234 ")]
         public async Task Login_BadPassword(string username, string firstPassword, string secondPassword)
         {
             string firstName = "First";
             string lastName = "Last";
-            username += TestUtils.GenerateRandomString(16, 49, 57);
+            username += TestUtils.GenerateRandomString(Settings.UsernameMinLength, Settings.ZeroCharVal, Settings.NineCharVal);
 
-            var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, firstPassword, firstName, lastName);
+            var apiResponse = await TestUtils.SetUpRegistrationRequest(EndpointRegister, username, firstPassword, firstName, lastName);
             Assert.Equal(System.Net.HttpStatusCode.OK, apiResponse.StatusCode);
 
-            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/login", username, secondPassword);
+            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword(EndpointLogin, username, secondPassword);
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, loginResponse.StatusCode);
         }
 
@@ -70,17 +78,17 @@ namespace BLAUnitTests
         {
             string firstName = "Raul";
             string lastName = "Chamgerlain";
-            string username = "chamgerlain" + TestUtils.GenerateRandomString(16, 49, 57);
+            string username = "chamgerlain" + TestUtils.GenerateRandomNumericPostfix();
             string password = "1234567";
             
-            var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
+            var apiResponse = await TestUtils.SetUpRegistrationRequest(EndpointRegister, username, password, firstName, lastName);
             Assert.Equal(System.Net.HttpStatusCode.OK, apiResponse.StatusCode);
 
-            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/login", username, password);
+            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword(EndpointLogin, username, password);
             string authHeader = loginResponse.Headers.GetValues("Authorization").FirstOrDefault();
             Assert.Equal(System.Net.HttpStatusCode.OK, loginResponse.StatusCode);
 
-            var logoutResponse = await TestUtils.SetUpRequestWithAuth($"{ApiBaseUrl}/session/logout", authHeader, "");
+            var logoutResponse = await TestUtils.SetUpRequestWithAuth(EndpointLogout, authHeader, "");
             var logoutAuthToken = logoutResponse.Headers.GetValues("Authorization").FirstOrDefault();
             Assert.Equal(System.Net.HttpStatusCode.OK, logoutResponse.StatusCode);
             Assert.Empty(logoutAuthToken);
@@ -91,17 +99,17 @@ namespace BLAUnitTests
         {
             string firstName = "Raul";
             string lastName = "Chamgerlain";
-            string username = "chamgerlain" + TestUtils.GenerateRandomString(16, 49, 57);
+            string username = "chamgerlainagain" + TestUtils.GenerateRandomNumericPostfix();
             string password = "1234567";
 
-            var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
+            var apiResponse = await TestUtils.SetUpRegistrationRequest(EndpointRegister, username, password, firstName, lastName);
             Assert.Equal(System.Net.HttpStatusCode.OK, apiResponse.StatusCode);
 
-            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/login", username, password);
+            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword(EndpointLogin, username, password);
             string authHeader = loginResponse.Headers.GetValues("Authorization").FirstOrDefault();
             Assert.Equal(System.Net.HttpStatusCode.OK, loginResponse.StatusCode);
 
-            var logoutResponse = await TestUtils.SetUpRequestWithAuth($"{ApiBaseUrl}/session/logout", authHeader+"modifiedtokenstringhere", "");
+            var logoutResponse = await TestUtils.SetUpRequestWithAuth(EndpointLogout, authHeader+"modifiedtokenstringhere", "");
             var logoutAuthToken = logoutResponse.Headers.GetValues("Authorization").FirstOrDefault();
             Assert.Equal(System.Net.HttpStatusCode.OK, logoutResponse.StatusCode);
             Assert.Empty(logoutAuthToken);
@@ -112,17 +120,17 @@ namespace BLAUnitTests
         {
             string firstName = "Raul";
             string lastName = "Chamgerlain";
-            string username = "chamgerlain" + TestUtils.GenerateRandomString(16, 49, 57);
+            string username = "chamgerlainraul" + TestUtils.GenerateRandomNumericPostfix();
             string password = "1234567";
 
-            var apiResponse = await TestUtils.SetUpRegistrationRequest($"{ApiBaseUrl}/users/register", username, password, firstName, lastName);
+            var apiResponse = await TestUtils.SetUpRegistrationRequest(EndpointRegister, username, password, firstName, lastName);
             Assert.Equal(System.Net.HttpStatusCode.OK, apiResponse.StatusCode);
 
-            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/login", username, password);
+            var loginResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword(EndpointLogin, username, password);
             string authHeader = loginResponse.Headers.GetValues("Authorization").FirstOrDefault();
             Assert.Equal(System.Net.HttpStatusCode.OK, loginResponse.StatusCode);
 
-            var logoutResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword($"{ApiBaseUrl}/session/logout", username, password);
+            var logoutResponse = await TestUtils.SetUpPostRequestWithUsernameAndPassword(EndpointLogout, username, password);
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, logoutResponse.StatusCode);
         }
 

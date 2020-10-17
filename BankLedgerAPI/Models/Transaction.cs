@@ -7,6 +7,8 @@ namespace BankLedgerAPI.Models
 {
     public class Transaction
     {
+
+        public int Id { get; set; }
         public DateTime TransactionDate;
         public Decimal Amount;
         public String Source;

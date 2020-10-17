@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,12 +18,11 @@ namespace BankLedgerAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly DataContext _context;
-        private readonly string emptyStringHash;
 
         public UsersController(DataContext context)
         {
             _context = context;
-            emptyStringHash = Encoding.ASCII.GetString(HashUtils.HashPassword(string.Empty));
+
         }
 
         // TODO change this, obvs don't want to spit out all users with a simple GET
@@ -44,19 +44,18 @@ namespace BankLedgerAPI.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromHeader] string username, [FromHeader] string password, [FromBody] JObject userData)
         {
+            
             var user = userData.ToObject<User>();
-            Regex regex = new Regex(@"^[0-9a-zA-Z]{3,32}$");
-            //string emptyStringHash = Encoding.ASCII.GetString(HashUtil.HashPassword(string.Empty));
             // TODO add checks to password lengths and complexity
 
-            if (String.IsNullOrWhiteSpace(username) || password.Equals(emptyStringHash) || String.IsNullOrWhiteSpace(user.FName) || String.IsNullOrWhiteSpace(user.LName))
+            if (String.IsNullOrWhiteSpace(username) || password.Equals(HashUtils.EmptyStringHash) || String.IsNullOrWhiteSpace(user.FName) || String.IsNullOrWhiteSpace(user.LName))
             {
                 return BadRequest("Invalid params for user registration.");
             }
 
-            if (!regex.IsMatch(username))
+            if (!ValidationUtils.IsMatch(Settings.UsernameCriterion, username, Settings.UsernameMinLength, Settings.UsernameMaxLength))
             {
-                return BadRequest("Illegal characters in username. Alphanumeric only.");
+                return BadRequest(String.Format("Illegal characters in username. Usernames must have {0}.", Settings.UsernameValidationMessage));
             }
 
             var users = _context.Users.Where(u => u.Username == username);

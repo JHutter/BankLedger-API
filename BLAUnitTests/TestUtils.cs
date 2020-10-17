@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using BankLedgerAPI.Utilities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -10,6 +11,7 @@ namespace BLAUnitTests
 {
     public static class TestUtils
     {
+
         /// <summary>
         /// Returns HttpContent to be posted
         /// </summary>
@@ -121,6 +123,19 @@ namespace BLAUnitTests
             return response;
         }
 
+        public static async Task<HttpResponseMessage> SetUpPostRequestWithHeaderAndAuth(string endpoint, string httpContent, string token, Dictionary<string, string> header)
+        {
+            var apiClient = new HttpClient();
+            apiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            foreach (var item in header)
+            {
+                apiClient.DefaultRequestHeaders.Add(item.Key, item.Value);
+            }
+                
+            var response = await apiClient.PostAsync(endpoint, new StringContent(httpContent));
+            return response;
+        }
+
         public static string GenerateRandomString(int length, int min, int max)
         {
             string generated = string.Empty;
@@ -131,6 +146,11 @@ namespace BLAUnitTests
                 generated += newChar;
             }
             return generated;
+        }
+
+        public static string GenerateRandomNumericPostfix()
+        {
+            return GenerateRandomString(Settings.UsernameMinLength, Settings.ZeroCharVal, Settings.NineCharVal);
         }
     }
 }

@@ -7,7 +7,8 @@ namespace BankLedgerAPI.Models
 {
     public class AccountHolder
     {
-        private User Holder;
-        public AccountHolderType accountHolderType;
+        public int Id { get; set; }
+        public User Holder;
+        public AccountHolderType AccountHolderType;
     }
 }

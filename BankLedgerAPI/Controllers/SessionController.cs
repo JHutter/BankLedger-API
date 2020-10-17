@@ -13,6 +13,7 @@ using System.Security.Cryptography;
 using IdentityModel.Client;
 using BankLedgerAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
+using BankLedgerAPI.Services;
 
 /* Session Controller
  * endpoints  
@@ -27,10 +28,12 @@ namespace BankLedgerAPI.Controllers
     public class SessionController : Controller
     {
         private readonly DataContext _context;
+        private readonly TokenService tokenService;
 
         public SessionController(DataContext context)
         {
             _context = context;
+            tokenService = new TokenService(_context);
         }
 
         /*[AllowAnonymous]*/
@@ -77,8 +80,7 @@ namespace BankLedgerAPI.Controllers
                         JWTToken = securityToken
                     };
 
-                    _context.JWTBlacklist.Add(tempToken);
-                    _context.SaveChanges();
+                    tokenService.BlackListToken(tempToken);
                 }
 
                 HttpContext.Response.Headers.Append("Authorization", " ");

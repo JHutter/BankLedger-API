@@ -20,21 +20,9 @@ namespace BankLedgerAPI
         public DbSet<User> Users { get; set; }
 
         public DbSet<Token> JWTBlacklist { get; set; }
+        public DbSet<AccountHolder> AccountHolders { get; set; }
+        public DbSet<Account> Accounts { get; set; }
 
-        //public DbSet<Account> Accounts { get; set; }
-
-        //public DbSet<Transaction> Transactions { get; set; }
-
-
-        // TODO: this is kludgy, take it out
-        public bool UsernameExists(string username)
-        {
-            foreach (User user in Users)
-            {
-                if (user.Username.Equals(username)) { return true; }
-            }
-            return false;
-        }
 
         // TODO: this is a stub
         public bool AuthTokenInBlacklist(string attemptToken)

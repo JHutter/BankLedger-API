@@ -14,6 +14,7 @@ namespace BankLedgerAPI.Utilities
     public static class TokenUtils
     {
         private static readonly byte[] _key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("BLA_JWT_SECRET")); // TODO fix this _appSettings.Secret
+        // TODO add request IP to claims
         public static string GenerateToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -24,6 +25,7 @@ namespace BankLedgerAPI.Utilities
                                 new Claim(ClaimTypes.Name, user.Id.ToString()),
                                 new Claim(ClaimTypes.UserData, user.Username),
                                 new Claim(ClaimTypes.Role, "user")
+
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(10),
                 Issuer = "BLA",
@@ -52,6 +54,8 @@ namespace BankLedgerAPI.Utilities
         {
             try
             {
+                
+                tokenString = tokenString.Replace("Bearer ", "");
                 JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
                 IPrincipal principal = handler.ValidateToken(tokenString, GetValidationParameters(), out securityToken);
                 return true;
@@ -62,5 +66,37 @@ namespace BankLedgerAPI.Utilities
                 return false;
             }
         }
+
+        public static bool IsValidFormatTokenString(string tokenString)
+        {
+            int sectionCount = 3;
+            return (!String.IsNullOrWhiteSpace(tokenString) && tokenString.Contains("Bearer ") && tokenString.Split(".").Length == sectionCount);
+        }
+
+        public static string GetUsernameFromToken(string tokenString,SecurityToken securityToken)
+        {
+            return GetClaimValueByName(tokenString, ClaimTypes.UserData);
+        }
+
+        public static int GetUserIDFromToken(string tokenString, SecurityToken securityToken)
+        {
+            if (int.TryParse(GetClaimValueByName(tokenString, ClaimTypes.Name), out int id))
+            {
+                return id;
+            }
+            else
+            {
+                return 0;
+            }
+
+        }
+
+        private static string GetClaimValueByName(string tokenString, string claimName)
+        {
+            tokenString = tokenString.Replace("Bearer ", "");
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            return handler.ValidateToken(tokenString, GetValidationParameters(), out _)?.FindFirst(claimName)?.Value;
+        }
+
     }
 }
