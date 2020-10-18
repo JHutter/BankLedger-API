@@ -23,7 +23,8 @@ namespace BankLedgerAPI.Services
 
         public bool IsTokenBlackListed(SecurityToken token)
         {
-            return _context.JWTBlacklist.Any(Token => Token.JWTToken == token);
+            return _context.JWTBlacklist.Select(Token => Token.JWTToken == token).Any();
+            //return _context.JWTBlacklist.Any(Token => Token.JWTToken == token);
         }
 
         public void BlackListToken(Token token)
